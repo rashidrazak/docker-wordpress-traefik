@@ -1,0 +1,70 @@
+version: "3.7"
+
+services:
+
+  wordpress:
+    image: ${WORDPRESS_IMAGE_VERSION}
+    container_name: ${WORDPRESS_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - reverse_proxy
+      - wordpress_site
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=reverse_proxy"
+      - "traefik.http.routers.wordpress01.rule=Host(`wordpress01.nodejs.my`)"
+      - "traefik.http.routers.wordpress01.service=wordpress01-wp-svc"
+      - "traefik.http.services.wordpress01-wp-svc.loadbalancer.server.port=80"
+
+  mysql:
+    image: ${MYSQL_IMAGE_VERSION}
+    container_name: ${MYSQL_CONTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - database:/var/lib/mysql
+    networks:
+      - wordpress_site
+    labels:
+      - "traefik.enable=false"
+
+  phpmyadmin:
+    image: ${PHPMYADMIN_IMAGE_VERSION}
+    container_name: ${PHPMYADMIN_CONTAINER_NAME}
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: ${PHPMYADMIN_HOST}
+      PMA_ABSOLUTE_URI: ${PHPMYADMIN_ABSOLUTE_URI}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    networks:
+      - reverse_proxy
+      - wordpress_site
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=reverse_proxy"
+      - "traefik.http.routers.phpmyadmin01.rule=Host(`phpmyadmin01.nodejs.my`)"
+      - "traefik.http.routers.phpmyadmin01.service=phpmyadmin01-svc"
+      - "traefik.http.services.phpmyadmin01-svc.loadbalancer.server.port=80"
+
+volumes:
+  wordpress:
+  database:
+
+networks:
+  reverse_proxy:
+    external: true
+  wordpress_site:
+    external: false
