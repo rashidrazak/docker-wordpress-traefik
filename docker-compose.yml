@@ -22,6 +22,8 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=reverse_proxy"
       - "traefik.http.routers.wordpress01.rule=Host(`wordpress01.nodejs.my`)"
+      - "traefik.http.routers.wordpress01.entrypoints=websecure"
+      - "traefik.http.routers.wordpress01.tls.certresolver=mytlschallenge"
       - "traefik.http.routers.wordpress01.service=wordpress01-wp-svc"
       - "traefik.http.services.wordpress01-wp-svc.loadbalancer.server.port=80"
 
