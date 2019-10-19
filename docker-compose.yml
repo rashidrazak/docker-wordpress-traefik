@@ -24,6 +24,8 @@ services:
       - "traefik.http.routers.wordpress01.rule=Host(`wordpress01.nodejs.my`)"
       - "traefik.http.routers.wordpress01.entrypoints=websecure"
       - "traefik.http.routers.wordpress01.tls.certresolver=mytlschallenge"
+      - "traefik.http.routers.wordpress01.tls.domains[0].main=nodejs.my"
+      - "traefik.http.routers.wordpress01.tls.domains[0].sans=wordpress01.nodejs.my"
       - "traefik.http.routers.wordpress01.service=wordpress01-wp-svc"
       - "traefik.http.services.wordpress01-wp-svc.loadbalancer.server.port=80"
 
