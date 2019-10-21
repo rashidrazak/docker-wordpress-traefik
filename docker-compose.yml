@@ -16,13 +16,13 @@ services:
     volumes:
       - wordpress:/var/www/html
     networks:
-      - reverse_proxy
-      - wordpress_site
+      - ${REVERSE_PROXY_NETWORK}
+      - ${WORDPRESS_INTERNAL_NETWORK}
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=reverse_proxy"
-      - "traefik.http.routers.wordpress01.rule=Host(`wordpress01.nodejs.my`)"
-      - "traefik.http.routers.wordpress01.tls.certresolver=mytlschallenge"
+      - "traefik.docker.network=${REVERSE_PROXY_NETWORK}"
+      - "traefik.http.routers.${WORDPRESS_ROUTER_NAME}.rule=Host(`${WORDPRESS_HOST_URL}`)"
+      - "traefik.http.routers.${WORDPRESS_ROUTER_NAME}.tls.certresolver=${TLS_CERTRESOLVER}"
 
   mysql:
     image: ${MYSQL_IMAGE_VERSION}
@@ -36,7 +36,7 @@ services:
     volumes:
       - database:/var/lib/mysql
     networks:
-      - wordpress_site
+      - ${WORDPRESS_INTERNAL_NETWORK}
     labels:
       - "traefik.enable=false"
 
@@ -51,20 +51,20 @@ services:
       PMA_ABSOLUTE_URI: ${PHPMYADMIN_ABSOLUTE_URI}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     networks:
-      - reverse_proxy
-      - wordpress_site
+      - ${REVERSE_PROXY_NETWORK}
+      - ${WORDPRESS_INTERNAL_NETWORK}
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=reverse_proxy"
-      - "traefik.http.routers.phpmyadmin01.rule=Host(`phpmyadmin01.nodejs.my`)"
-      - "traefik.http.routers.phpmyadmin01.tls.certresolver=mytlschallenge"
+      - "traefik.docker.network=${REVERSE_PROXY_NETWORK}"
+      - "traefik.http.routers.${PHPMYADMIN_ROUTER_NAME}.rule=Host(`${PHPMYADMIN_HOST_URL}`)"
+      - "traefik.http.routers.${PHPMYADMIN_ROUTER_NAME}.tls.certresolver=${TLS_CERTRESOLVER}"
 
 volumes:
   wordpress:
   database:
 
 networks:
-  reverse_proxy:
+  ${REVERSE_PROXY_NETWORK}:
     external: true
-  wordpress_site:
+  ${WORDPRESS_INTERNAL_NETWORK}:
     external: false
