@@ -64,7 +64,9 @@ volumes:
   database:
 
 networks:
-  ${REVERSE_PROXY_NETWORK}:
+  reverse_proxy_network:
     external: true
-  ${WORDPRESS_INTERNAL_NETWORK}:
+    name: ${REVERSE_PROXY_NETWORK}
+  wordpress_network:
     external: false
+    name: ${WORDPRESS_INTERNAL_NETWORK}
